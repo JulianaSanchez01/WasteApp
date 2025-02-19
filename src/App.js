@@ -1,11 +1,13 @@
 // import logo from './logo.svg';
 import './App.css';
 import PieChart from './Components/PieChart';
+import BarChart from './Components/BarGraph';
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useState } from 'react';
 import { calculateWaste } from './utils/wasteCalculator'; // Import the function
 import React from 'react';
+import { BarCalculate } from './utils/BarCalculator';
 
 
 function App() {
@@ -20,18 +22,23 @@ function App() {
     textiles: 0,
     yardTrimmings: 0,
     wood: 0,
+    mswRecycled: 0,
   });
 
-  const [result, setResult] = useState(null);
-
   
+
+
   const handleChange = (e) => {
     setInputValues({
       ...inputValues,
       [e.target.name]: parseFloat(e.target.value) || 0, // Ensure input is treated as a number
     });
   };
-
+  
+  const [result, setResult] = useState(null);
+  const { results } = BarCalculate(inputValues);
+  const dataValues = results ? Object.values(results) : [];
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     const wasteResult = calculateWaste(inputValues);
@@ -56,6 +63,7 @@ function App() {
         <input type="number" name="textiles" onChange={handleChange} placeholder="Textiles Waste" />
         <input type="number" name="yardTrimmings" onChange={handleChange} placeholder="Yard Trimmings Waste" />
         <input type="number" name="wood" onChange={handleChange} placeholder="Wood Waste" />
+        <input type="number" name="mswRecycled" onChange={handleChange} placeholder="MSW Recycled" />
         <button type="submit">Calculate Waste</button>
       </form>
       {result && (
@@ -71,10 +79,16 @@ function App() {
             ))}
           </ul>
         </div>
-        <h1>Pie Chart Example</h1>
+        <h1>Pie Chart</h1>
       <PieChart 
-      labels={Object.keys(result.proportions)} // Use the waste types as labels
-      dataValues={Object.values(result.proportions)} // Use the calculated proportions as data
+      labels={Object.keys(result.proportions)} // Extract the keys for labels
+      dataValues={Object.values(result.proportions)} // Extract the values for data
+      
+      />
+      <h1>Bar Graph</h1>
+      <BarChart 
+      labels={["User Rate ", "National Rate (2017)", "PHL Rate (2018)", "National Target (2030)"]} 
+      dataValues={dataValues} 
       
       />
     </>    
